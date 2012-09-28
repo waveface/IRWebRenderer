@@ -12,6 +12,7 @@
 
 @property (nonatomic, readwrite, copy) IRWebRendererConfigurationBlock configurationBlock;
 @property (nonatomic, readwrite, strong) UIImage *image;
+@property (nonatomic, readwrite, strong) UIWebView *webView;
 
 @property (atomic, readwrite, assign, getter=isExecuting, setter=setExecuting:) BOOL executing;
 @property (atomic, readwrite, assign, getter=isFinished, setter=setFinished:) BOOL finished;
@@ -44,23 +45,6 @@
 
 }
 
-+ (UIWebView *) webView {
-
-	static UIWebView *webView = nil;
-	static dispatch_once_t onceToken;
-	
-	NSCParameterAssert([NSThread isMainThread]);
-	
-	dispatch_once(&onceToken, ^{
-			
-		webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-		
-	});
-	
-	return webView;
-	
-}
-
 - (id) init {
 
 	return [self initWithConfigurationBlock:nil];
@@ -81,6 +65,12 @@
 
 }
 
+- (void) dealloc {
+  
+  self.webView.delegate = nil;
+
+}
+
 - (void) start {
 
 	[super start];
@@ -94,13 +84,14 @@
 		if (!wSelf)
 			return;
 
-		UIWebView *webView = [[wSelf class] webView];
-		NSCParameterAssert(!webView.delegate);	//	things go wrong otherwise
+		UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
 		
 		webView.delegate = wSelf;
 		
 		wSelf.configurationBlock(webView);
 		wSelf.executing = YES;
+    
+    wSelf.webView = webView;
 		
 	}];
 
@@ -170,9 +161,7 @@
 			[wSelf didChangeValueForKey:@"isFinished"];
 			
 			NSLog(@"%@", wSelf);
-			
-			wWebView.delegate = nil;
-		
+					
 		});
 		
 	});
