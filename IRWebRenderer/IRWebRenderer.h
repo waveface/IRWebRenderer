@@ -10,8 +10,8 @@
 
 @interface IRWebRenderer : NSObject
 
-- (void) renderWithConfiguration:(IRWebRendererConfigurationBlock)configurationBlock completion:(IRWebRendererCompletionBlock)completionBlock;
+@property (nonatomic, strong) UIImage *image;
 
-@property (nonatomic, readonly, strong) NSOperationQueue *operationQueue;
+- (void) renderWithConfiguration:(IRWebRendererConfigurationBlock)configurationBlock;
 
 @end

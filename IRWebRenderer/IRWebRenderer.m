@@ -16,20 +16,29 @@
 @implementation IRWebRenderer
 @synthesize operationQueue = _operationQueue;
 
++ (NSOperationQueue *)operationQueue {
+  static NSOperationQueue *opQueue = nil;
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    opQueue = [[NSOperationQueue alloc] init];
+    opQueue.maxConcurrentOperationCount = 1;
+  });
+  
+  return opQueue;
+}
+
 - (id) init {
 
 	self = [super init];
 	if (!self)
 		return nil;
-	
-	_operationQueue = [[NSOperationQueue alloc] init];
-	_operationQueue.maxConcurrentOperationCount = 1;
-	
+		
 	return self;
 
 }
 
-- (void) renderWithConfiguration:(IRWebRendererConfigurationBlock)configurationBlock completion:(IRWebRendererCompletionBlock)completionBlock {
+- (void) renderWithConfiguration:(IRWebRendererConfigurationBlock)configurationBlock {
 
 	IRWebRenditionOperation *operation = [[IRWebRenditionOperation alloc] initWithConfigurationBlock:^(UIWebView *webView) {
 
@@ -41,11 +50,12 @@
 	
 	[operation setCompletionBlock:^{
 	
-		completionBlock(wOperation.image);
+    self.image = wOperation.image;
+//		completionBlock(wOperation.image);
 		
 	}];
 
-	[self.operationQueue addOperation:operation];
+  [[[self class] operationQueue] addOperation:operation];
 	
 }
 

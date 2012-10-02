@@ -67,8 +67,6 @@
 
 - (void) dealloc {
   
-  self.webView.delegate = nil;
-
 }
 
 - (void) start {
@@ -122,7 +120,7 @@
 	__weak IRWebRenditionOperation *wSelf = self;
 	__weak UIWebView *wWebView = webView;
 	
-	BOOL const canRenderInBackground = [[self class] canRenderInBackground];
+//	BOOL const canRenderInBackground = [[self class] canRenderInBackground];
 	
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
 	
@@ -136,18 +134,20 @@
 		
 			[webView.layer layoutIfNeeded];
 			
-			if (!canRenderInBackground)
+			//if (!canRenderInBackground)
 				[wWebView.layer renderInContext:ctx];
 
 		});
-
+/*
 		if (canRenderInBackground)
 			[wWebView.layer renderInContext:ctx];
-		
+	*/	
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		wSelf.image = image;
 		
 		UIGraphicsEndImageContext();
+    
+    wSelf.webView.delegate = nil;
 		
 		dispatch_async(dispatch_get_main_queue(), ^{
 		
@@ -160,7 +160,7 @@
 			[wSelf didChangeValueForKey:@"isExecuting"];
 			[wSelf didChangeValueForKey:@"isFinished"];
 			
-			NSLog(@"%@", wSelf);
+//			NSLog(@"%@", wSelf);
 					
 		});
 		
